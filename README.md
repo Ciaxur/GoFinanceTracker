@@ -5,6 +5,9 @@ Basic Personal Finance Tracker that tracks earnings and calculates how much to s
 
 ## How to Run
 ``` bash
+# Initialize Requirements (Go Packages)
+make init
+
 # Using Golang to Simply Run
 go run ./src
 ```
