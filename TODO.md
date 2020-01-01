@@ -2,6 +2,7 @@
 ---
 
 #### [ FEATURES ]
+- Text Hints (Bold, Colors, Italics...)
 
 #### [ PERFORMANCE ]
 - Use "make" to pre-allocate space for incomming data
@@ -12,3 +13,6 @@
     - Have a "Load More" option
 - Binary Search through Data Block for Month
 - Save by Appending NEW data rather than all
+
+#### [ DEVELOPMENT ]
+- Implement Continuous Integration (TravisCI)
