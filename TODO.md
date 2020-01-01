@@ -2,7 +2,6 @@
 ---
 
 #### [ FEATURES ]
-- Text Hints (Bold, Colors, Italics...)
 
 #### [ PERFORMANCE ]
 - Use "make" to pre-allocate space for incomming data

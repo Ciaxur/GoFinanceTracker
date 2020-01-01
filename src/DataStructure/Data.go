@@ -39,15 +39,15 @@ func printFloatArr(arr []float32, formatStr string, end string) {
  *  Prints DataBlock
  */
 func (d *DataBlock) Print() {
-	fmt.Printf("Month: %d\n", d.Month)
-	fmt.Printf("Date: %v\n", d.Date)
-	fmt.Print("Payments: ")
+	fmt.Printf("==== Month: %d ====\n", d.Month)
+	// fmt.Printf("- Date: %v\n", d.Date)
+	fmt.Print("- Payments: ")
 	printFloatArr(d.Payment, "$%.2f ", "\n")
-	fmt.Print("Savings: ")
+	fmt.Print("- Savings: ")
 	printFloatArr(d.Savings, "$%.2f ", "\n")
-	fmt.Print("Liquid: ")
+	fmt.Print("- Liquid: ")
 	printFloatArr(d.Liquid, "$%.2f ", "\n")
-	fmt.Print("Transactions: ")
+	fmt.Print("- Transactions: ")
 	printFloatArr(d.Transactions, "$%.2f ", "\n")
 
 	fmt.Println()

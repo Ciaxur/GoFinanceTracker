@@ -7,6 +7,7 @@ import (
 	"time"
 
 	. "./DataStructure"
+	"./Utils"
 
 	"github.com/manifoldco/promptui"
 )
@@ -57,10 +58,11 @@ func main() {
 			// CHECK IF DATA PREV FOUND
 			d := FindDataMonth(data, int(month))
 			if d != nil { // BLOCK FOUND
-				fmt.Println("Month Found!")
+				Utils.Out.Info.Println("\nMonth Found!")
+
 				d.Print()
 			} else { // NEW DATA BLOCK
-				fmt.Printf("Creating new Block for '%s'\n", strDate)
+				Utils.Out.Info.Printf("Creating new Block for '%s'\n", strDate)
 
 				// Create new Data Block
 				d = &DataBlock{}
@@ -91,12 +93,13 @@ func main() {
 				case addDataChoices[0]: // ADD PAYMENT
 					var payment float32
 
-					fmt.Print("Enter Payment: $")
+					Utils.Out.Prompt.Print("Enter Payment: $")
+
 					text, _ := reader.ReadString('\n')
 					_, err := fmt.Sscanf(text, "%f", &payment)
 
 					if err != nil {
-						fmt.Printf("Add Payment Error: %v\n", err.Error())
+						Utils.Out.Error.Printf("Add Payment Error: %v\n", err.Error())
 					} else if payment > 0 {
 						// CALCULATE Savings/Liquid
 						savings := payment * (config.Properties.Savings_Percentage / 100.00)
@@ -108,27 +111,27 @@ func main() {
 						d.Liquid = append(d.Liquid, liquid)
 
 						// OUTPUT INFO
-						fmt.Printf("Payment '$%.2f' Added!\n", payment)
-						fmt.Printf("Savings/Liquid '($%.2f / $%.2f)' Calculated!\n", savings, liquid)
+						Utils.Out.Info.Printf("Payment '$%.2f' Added!\n", payment)
+						Utils.Out.Info.Printf("Savings/Liquid '($%.2f / $%.2f)' Calculated!\n", savings, liquid)
 
 					} else {
-						fmt.Printf("Payment '$%.2f' is Redundant, not added!\n", payment)
+						Utils.Out.Warning.Printf("Payment '$%.2f' is Redundant, not added!\n", payment)
 					}
 
 				case addDataChoices[1]: // ADD TRANSACTION
 					var transaction float32
 
-					fmt.Print("Enter Transaction: $")
+					Utils.Out.Prompt.Print("Enter Transaction: $")
 					text, _ := reader.ReadString('\n')
 					_, err := fmt.Sscanf(text, "%f", &transaction)
 
 					if err != nil {
-						fmt.Printf("Add Transaction Error: %v\n", err.Error())
+						Utils.Out.Error.Printf("Add Transaction Error: %v\n", err.Error())
 					} else if transaction > 0 {
-						fmt.Printf("Transaction '$%.2f' Added!\n", transaction)
+						Utils.Out.Info.Printf("Transaction '$%.2f' Added!\n", transaction)
 						d.Transactions = append(d.Transactions, transaction)
 					} else {
-						fmt.Printf("Transaction '$%.2f' is Redundant, not added!\n", transaction)
+						Utils.Out.Warning.Printf("Transaction '$%.2f' is Redundant, not added!\n", transaction)
 					}
 
 				case addDataChoices[2]: // GO BACK
@@ -136,13 +139,13 @@ func main() {
 					exitMenu = true
 
 				default:
-					fmt.Printf("Add Data Menu: Whoops, something went wrong!\n")
+					Utils.Out.Error.Printf("Add Data Menu: Whoops, something went wrong!\n")
 					return
 				}
 
 				// SHOW DATA BLOCK
 				if exitMenu != true {
-					fmt.Println("\n===== Block =====")
+					Utils.Out.Important.Println("\n===== Block =====")
 					d.Print()
 				}
 			}
@@ -163,20 +166,20 @@ func main() {
 
 			case viewChoices[1]: // ASK FOR SPECIFIC MONTH + DISPLAY
 				// Get Month from User
-				fmt.Printf("Enter Specific Month: ")
+				Utils.Out.Prompt.Printf("Enter Specific Month: ")
 				var month int
 				text, _ := reader.ReadString('\n')
 				_, err := fmt.Sscanf(text, "%d", &month)
 
 				if err != nil {
-					fmt.Printf("Specific Month Error: %v\n", err.Error())
+					Utils.Out.Error.Printf("Specific Month Error: %v\n", err.Error())
 				} else {
 					// Find Month & Display
 					d := FindDataMonth(data, month)
 					if d != nil {
 						d.Print()
 					} else {
-						fmt.Println("No Data Found for Month!")
+						Utils.Out.Warning.Println("No Data Found for Month!")
 					}
 				}
 
@@ -186,7 +189,7 @@ func main() {
 			case viewChoices[3]: // RETURN TO PREVIOUS MENU
 				fmt.Println("Returning to Main Menu...")
 			default:
-				fmt.Printf("View Menu: Whoops, something went wrong!\n")
+				Utils.Out.Error.Printf("View Menu: Whoops, something went wrong!\n")
 				return
 
 			}
@@ -194,11 +197,11 @@ func main() {
 		case mainChoices[2]: // SAVE DATA
 			err1, err2 := SaveData(data, config, "data.json", "config.json")
 			if err1 != nil {
-				fmt.Printf("Data Save Failed! %v\n", err1)
+				Utils.Out.Error.Printf("Data Save Failed! %v\n", err1)
 			} else if err2 != nil {
-				fmt.Printf("Config Save Failed! %v\n", err2)
+				Utils.Out.Error.Printf("Config Save Failed! %v\n", err2)
 			} else {
-				fmt.Printf("Data and Config Saved!\n")
+				Utils.Out.Info.Printf("Data and Config Saved!\n")
 			}
 
 		case mainChoices[3]: // SETTINGS
@@ -217,7 +220,7 @@ func main() {
 				// ACTION BASED ON SELECTION
 				switch result {
 				case settingChoices[0]: // VIEW SETTINGS
-					fmt.Println("==== Configuration Settings ====")
+					Utils.Out.Info.Println("==== Configuration Settings ====")
 					fmt.Printf("Data Length: %d\n", config.Properties.Data_Length)
 					fmt.Printf("Savings: %.2f%%\n", config.Properties.Savings_Percentage)
 					fmt.Printf("Liquid: %.2f%%\n\n", config.Properties.Liquid_Precentage)
@@ -226,14 +229,14 @@ func main() {
 					// OBTAIN NEW SAVINGS PERCENTAGE
 					var savingsP float32
 
-					fmt.Print("New Savings %")
+					Utils.Out.Prompt.Print("New Savings %")
 					text, _ := reader.ReadString('\n')
 					_, err := fmt.Sscanf(text, "%f", &savingsP)
 
 					if err != nil {
-						fmt.Printf("Settings Savings Error: %v\n", err)
+						Utils.Out.Error.Printf("Settings Savings Error: %v\n", err)
 					} else {
-						fmt.Printf("Savings Set to '%.2f%%'\n\n", savingsP)
+						Utils.Out.Info.Printf("Savings Set to '%.2f%%'\n\n", savingsP)
 						config.Properties.Savings_Percentage = savingsP
 
 						// UPDATE LIQUID TO MATCH 100%
@@ -244,14 +247,14 @@ func main() {
 					// OBTAIN NEW LIQUID PERCENTAGE
 					var liquidP float32
 
-					fmt.Print("New Liquid %")
+					Utils.Out.Prompt.Print("New Liquid %")
 					text, _ := reader.ReadString('\n')
 					_, err := fmt.Sscanf(text, "%f", &liquidP)
 
 					if err != nil {
-						fmt.Printf("Settings Liquid Error: %v\n", err)
+						Utils.Out.Error.Printf("Settings Liquid Error: %v\n", err)
 					} else {
-						fmt.Printf("Liquid Set to '%.2f%%'\n\n", liquidP)
+						Utils.Out.Info.Printf("Liquid Set to '%.2f%%'\n\n", liquidP)
 						config.Properties.Liquid_Precentage = liquidP
 
 						// UPDATE LIQUID TO MATCH 100%
@@ -262,17 +265,17 @@ func main() {
 					fmt.Println("Returning to Main Menu...")
 					exitMenu = true
 				default:
-					fmt.Printf("Settings Menu: Whoops, something went wrong!\n")
+					Utils.Out.Error.Printf("Settings Menu: Whoops, something went wrong!\n")
 					return
 				}
 			}
 
 		case mainChoices[4]: // EXIT
-			fmt.Print("Exiting...\n")
+			Utils.Out.Info.Print("Exiting...\n")
 			return
 
 		default:
-			fmt.Printf("Main Menu: Whoops, something went wrong!\n")
+			Utils.Out.Error.Printf("Main Menu: Whoops, something went wrong!\n")
 			return
 		}
 
