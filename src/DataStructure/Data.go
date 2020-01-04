@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"../Utils"
 )
 
 type Data struct {
@@ -39,18 +41,93 @@ func printFloatArr(arr []float32, formatStr string, end string) {
  *  Prints DataBlock
  */
 func (d *DataBlock) Print() {
-	fmt.Printf("==== Month: %d ====\n", d.Month)
-	// fmt.Printf("- Date: %v\n", d.Date)
-	fmt.Print("- Payments: ")
+	// Output Header
+	Utils.Out.Info.Print("====== ")
+	Utils.Out.Error.Print(d.Date)
+	Utils.Out.Info.Println(" ======")
+
+	// Output Data
+	Utils.Out.Info.Print("- Payments: \t\t")
 	printFloatArr(d.Payment, "$%.2f ", "\n")
-	fmt.Print("- Savings: ")
+	Utils.Out.Info.Print("- Savings: \t\t")
 	printFloatArr(d.Savings, "$%.2f ", "\n")
-	fmt.Print("- Liquid: ")
+	Utils.Out.Info.Print("- Liquid: \t\t")
 	printFloatArr(d.Liquid, "$%.2f ", "\n")
-	fmt.Print("- Transactions: ")
+	Utils.Out.Info.Print("- Transactions: \t")
 	printFloatArr(d.Transactions, "$%.2f ", "\n")
 
 	fmt.Println()
+}
+
+/**
+ * DataBlock Method
+ *  Prints Out Block Summary
+ *  	- Data Summation
+ *		- Data Usage
+ */
+func (d *DataBlock) PrintSummary() {
+	// CALCULATE RESULTS
+	var totalPay, totalSavings, totalLiquids, totalTransactions float32 // Summations
+	var liquidUsed, savingsUsed float32                                 // Usage
+	var liquidFlag, savingsFlag bool                                    // Over-Usage Flags
+
+	// Sum all Data
+	for _, v := range d.Payment {
+		totalPay += v
+	}
+	for _, v := range d.Savings {
+		totalSavings += v
+	}
+	for _, v := range d.Liquid {
+		totalLiquids += v
+	}
+	for _, v := range d.Transactions {
+		totalTransactions += v
+	}
+
+	// Usage
+	liquidUsed = totalLiquids - totalTransactions
+	if liquidUsed < 0 { // Used Savings!
+		liquidFlag = true                       // Used up all Liquid
+		savingsUsed = totalSavings + liquidUsed // Carry to Savings
+		liquidUsed = 0                          // Used up ALL Liquid
+
+		if savingsUsed < 0 { // Over-Usage! Used up Savings!
+			savingsFlag = true
+		}
+	}
+
+	// Output Header
+	Utils.Out.Info.Print("====== ")
+	Utils.Out.Error.Print(d.Date)
+	Utils.Out.Info.Println(" ======")
+
+	// Output Sum Results
+	Utils.Out.Info.Print("Total Payments: \t$")
+	Utils.Out.Important.Println(totalPay)
+	Utils.Out.Info.Print("Total Savings: \t\t$")
+	Utils.Out.Important.Println(totalSavings)
+	Utils.Out.Info.Print("Total Liquid: \t\t$")
+	Utils.Out.Important.Println(totalLiquids)
+	Utils.Out.Info.Print("Total Transactions: \t$")
+	Utils.Out.Important.Println(totalTransactions, "\n")
+
+	// Output Usage Results
+	Utils.Out.Info.Print("Usage Liquid: \t\t$")
+	if liquidFlag { // Over-Used Liquid
+		Utils.Out.Important.Print(liquidUsed)
+		Utils.Out.Error.Println(" [OVER-USED]")
+	} else {
+		Utils.Out.Important.Println(liquidUsed)
+	}
+
+	Utils.Out.Info.Print("Usage Savings: \t\t$")
+	if savingsFlag { // Over-Used Savings
+		Utils.Out.Important.Print(savingsUsed)
+		Utils.Out.Error.Println(" [OVER-USED]")
+	} else {
+		Utils.Out.Important.Println(savingsUsed, "\n")
+	}
 }
 
 /**
@@ -115,7 +192,7 @@ func AddData(data *Data, block *DataBlock) {
  * @param data - Pointer to data Object
  * @param numData - The Last 'n' Elements
  */
-func ViewData(data *Data, numData int) {
+func ViewData(data *Data, numData int, fn func(b *DataBlock)) {
 	// Validate Number of Elements
 	if numData > len(data.Block) {
 		numData = len(data.Block)
@@ -123,9 +200,16 @@ func ViewData(data *Data, numData int) {
 
 	// Splice Block to View
 	block := data.Block[len(data.Block)-numData:]
-	for i, _ := range block {
-		fmt.Printf("Data Block [%v]:\n", i)
-		block[i].Print()
+	for i := range block {
+		if fn != nil {
+			fn(block[i])
+		} else {
+			Utils.Out.Info.Print("Data Block [")
+			Utils.Out.Important.Print(i)
+			Utils.Out.Info.Println("]:")
+
+			block[i].Print()
+		}
 	}
 }
 

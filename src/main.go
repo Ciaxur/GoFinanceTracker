@@ -27,7 +27,7 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	// Create Choices
-	mainChoices := []string{"1.Add Data", "2.View Data", "3.Save Data", "4.Settings", "0.Exit"}
+	mainChoices := []string{"1.Add Data", "2.View Data", "3.Summary", "4.Save Data", "5.Settings", "0.Exit"}
 	viewChoices := []string{"1.Latest Month", "2.Specific Month", "3.View Last 3 Months", "0.Go Back"}
 	addDataChoices := []string{"1.Add Payment", "2.Add Transaction", "0.Go Back"}
 	settingChoices := []string{"1.View", "2.Change Savings %", "3.Change Liquid %", "0.Go Back"}
@@ -150,10 +150,18 @@ func main() {
 				}
 			}
 
-		case mainChoices[1]: // VIEW DATA
+		case mainChoices[1], mainChoices[2]: // VIEW DATA	/ SUMMARY
+			// SUMMARY MODE
+			var summaryMode bool
+			promptLabel := "View Menu"
+			if result == mainChoices[2] {
+				summaryMode = true
+				promptLabel = "Summary Menu"
+			}
+
 			// LAUNCH MENU
 			prompt = promptui.Select{
-				Label: "View Menu",
+				Label: promptLabel,
 				Items: viewChoices,
 			}
 			_, result, err = prompt.Run()
@@ -162,7 +170,17 @@ func main() {
 			// ACTION BASED ON SELECTION
 			switch result {
 			case viewChoices[0]: // DISPLAY LATEST MONTH
-				ViewData(data, 1)
+				if len(data.Block) > 0 { // Verify there is data
+
+					if summaryMode {
+						// Obtain Block
+						block := data.Block[len(data.Block)-1]
+						block.PrintSummary()
+					} else {
+						ViewData(data, 1, nil)
+					}
+
+				}
 
 			case viewChoices[1]: // ASK FOR SPECIFIC MONTH + DISPLAY
 				// Get Month from User
@@ -177,14 +195,25 @@ func main() {
 					// Find Month & Display
 					d := FindDataMonth(data, month)
 					if d != nil {
-						d.Print()
+						if summaryMode {
+							d.PrintSummary()
+						} else {
+							d.Print()
+						}
 					} else {
 						Utils.Out.Warning.Println("No Data Found for Month!")
 					}
 				}
 
 			case viewChoices[2]: // VIEW LAST 3 MONTHS
-				ViewData(data, 3)
+				if summaryMode {
+					ViewData(data, 3, func(b *DataBlock) {
+						b.PrintSummary()
+						fmt.Println()
+					})
+				} else {
+					ViewData(data, 3, nil)
+				}
 
 			case viewChoices[3]: // RETURN TO PREVIOUS MENU
 				fmt.Println("Returning to Main Menu...")
@@ -194,7 +223,7 @@ func main() {
 
 			}
 
-		case mainChoices[2]: // SAVE DATA
+		case mainChoices[3]: // SAVE DATA
 			err1, err2 := SaveData(data, config, "data.json", "config.json")
 			if err1 != nil {
 				Utils.Out.Error.Printf("Data Save Failed! %v\n", err1)
@@ -204,7 +233,7 @@ func main() {
 				Utils.Out.Info.Printf("Data and Config Saved!\n")
 			}
 
-		case mainChoices[3]: // SETTINGS
+		case mainChoices[4]: // SETTINGS
 			// VARIABLES USED
 			exitMenu := false
 
@@ -270,7 +299,7 @@ func main() {
 				}
 			}
 
-		case mainChoices[4]: // EXIT
+		case mainChoices[5]: // EXIT
 			Utils.Out.Info.Print("Exiting...\n")
 			return
 

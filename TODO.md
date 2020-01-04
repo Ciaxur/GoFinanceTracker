@@ -2,9 +2,6 @@
 ---
 
 #### [ FEATURES ]
-- Month Summary
-    - What was used from Savings for Transactions
-    - Using Liquid Income for Transactions or if tapping into Savings
 - Year Summary
     - Similair Outcome to Monthly Summary
 - Generate Graph for Year
