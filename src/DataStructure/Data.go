@@ -49,10 +49,10 @@ func (d *DataBlock) Print() {
 	// Output Data
 	Utils.Out.Info.Print("- Payments: \t\t")
 	printFloatArr(d.Payment, "$%.2f ", "\n")
-	Utils.Out.Info.Print("- Savings: \t\t")
-	printFloatArr(d.Savings, "$%.2f ", "\n")
 	Utils.Out.Info.Print("- Liquid: \t\t")
 	printFloatArr(d.Liquid, "$%.2f ", "\n")
+	Utils.Out.Info.Print("- Savings: \t\t")
+	printFloatArr(d.Savings, "$%.2f ", "\n")
 	Utils.Out.Info.Print("- Transactions: \t")
 	printFloatArr(d.Transactions, "$%.2f ", "\n")
 
@@ -105,10 +105,10 @@ func (d *DataBlock) PrintSummary() {
 	// Output Sum Results
 	Utils.Out.Info.Print("Total Payments: \t$")
 	Utils.Out.Important.Println(totalPay)
-	Utils.Out.Info.Print("Total Savings: \t\t$")
-	Utils.Out.Important.Println(totalSavings)
 	Utils.Out.Info.Print("Total Liquid: \t\t$")
 	Utils.Out.Important.Println(totalLiquids)
+	Utils.Out.Info.Print("Total Savings: \t\t$")
+	Utils.Out.Important.Println(totalSavings)
 	Utils.Out.Info.Print("Total Transactions: \t$")
 	Utils.Out.Important.Println(totalTransactions, "\n")
 
