@@ -8,6 +8,7 @@
 - Year Summary
     - Similair Outcome to Monthly Summary
 - Generate Graph for Year
+- When Always Check Current Year for Month Number
 
 #### [ PERFORMANCE ]
 - Use "make" to pre-allocate space for incomming data
