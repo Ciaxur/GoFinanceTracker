@@ -1,7 +1,6 @@
 BIN=./bin
 SRC=./src
 APP=app
-DEPS="github.com/fatih/color" "github.com/manifoldco/promptui"
 
 
 # Compile Project
@@ -11,4 +10,4 @@ build:
 
 # Initialize all required dependencies
 init:
-	go get $(DEPS)
+	go get -v -t -d ./...
