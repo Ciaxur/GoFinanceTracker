@@ -137,6 +137,7 @@ func (d *DataBlock) PrintSummary() {
  */
 func LoadData(fileName string) *Data {
 	var data Data
+	data.Block = make([]*DataBlock, 0, 12)
 
 	jsonFile, err := os.Open(fileName)
 	if err != nil {
