@@ -4,12 +4,19 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
+	"sort"
+	"strconv"
 	"time"
 
 	. "./DataStructure"
 	"./Utils"
 
 	"github.com/manifoldco/promptui"
+)
+
+const (
+	dataPath = "data"
 )
 
 // Handles PromptTUI Error
@@ -20,9 +27,56 @@ func handlePromptErr(err error) {
 	}
 }
 
+/**
+ * Display Files available to load
+ *  for the user to choose, or default
+ *  file
+ *
+ * @param dirpath - The directory path that the data is stored in
+ * @returns File Name to Load
+ */
+func displayDataFiles(dirpath string) string {
+	// Open Directory
+	dataDir, err := os.Open(dirpath)
+	defer dataDir.Close()
+
+	// File to Load
+	var fileToLoad string
+
+	// If Directory not Found, create one
+	if err != nil {
+		Utils.Out.Info.Println("Data Directory not found, creating one")
+		os.Mkdir("data", 0755)
+	} else {
+		// Display which Data to load
+		list, err := dataDir.Readdirnames(-1)
+		sort.Sort(sort.Reverse(sort.StringSlice(list))) // Sort in Reverse (Latest Year first)
+
+		if err != nil {
+			println(err.Error())
+		} else {
+			if len(list) == 0 { // No Files, load defaul so return nothing
+				return ""
+			} else if len(list) == 1 { // If there is only ONE file, return that
+				return list[0]
+			}
+
+			// Display Prompt to get which Data to Load
+			prompt := promptui.Select{
+				Label: "Load Data File",
+				Items: list,
+			}
+			_, fileToLoad, err = prompt.Run()
+			handlePromptErr(err)
+		}
+	}
+	// Return the Data File to Load
+	return fileToLoad
+}
+
 func main() {
 	// Load File Data and Variables
-	data := LoadData("data.json")
+	data := LoadData(dataPath + "/" + displayDataFiles(dataPath))
 	config := LoadConfig("config.json")
 	reader := bufio.NewReader(os.Stdin)
 
@@ -224,7 +278,37 @@ func main() {
 			}
 
 		case mainChoices[3]: // SAVE DATA
-			err1, err2 := SaveData(data, config, "data.json", "config.json")
+			// GENERATE SAVE FILE NAME BASED ON MONTH DATE
+			todayDate := time.Now()
+			year, _, _ := todayDate.Date()
+			fileName := fmt.Sprintf("%d.json", year)
+
+			// Strip out Previous Year to save into single Year File
+			var currentData Data
+			currentData.Block = make([]*DataBlock, 0, 12)
+
+			// Add Current Year Data into Block to Save
+			for _, block := range data.Block {
+				if len(block.Date) > 0 {
+					// Obtain each Block's Year
+					re := regexp.MustCompile(`[0-9]*$`)
+					bYear, err := strconv.Atoi(string(re.Find([]byte(block.Date[0]))))
+
+					// Handle Error, if any
+					if err != nil {
+						Utils.Out.Error.Println("Save Data Error!")
+						panic(err)
+					}
+
+					// If Same Year, Append to Data that'll be saved
+					if bYear == year {
+						currentData.Block = append(currentData.Block, block)
+					}
+				}
+			}
+
+			// SAVE THE FILE
+			err1, err2 := SaveData(&currentData, config, dataPath+"/"+fileName, "config.json")
 			if err1 != nil {
 				Utils.Out.Error.Printf("Data Save Failed! %v\n", err1)
 			} else if err2 != nil {
