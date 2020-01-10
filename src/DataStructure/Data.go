@@ -164,7 +164,7 @@ func LoadData(fileName string) *Data {
  */
 func SaveData(data *Data, config *Config, dataFileName string, configFileName string) (error, error) {
 	// Update some Config Data
-	config.Properties.Data_Length = len(data.Block)
+	config.Properties.DataLength = len(data.Block)
 
 	// Update Data in JSON File
 	file, err := json.MarshalIndent(data, "", "\t")

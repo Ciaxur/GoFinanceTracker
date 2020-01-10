@@ -156,8 +156,8 @@ func main() {
 						Utils.Out.Error.Printf("Add Payment Error: %v\n", err.Error())
 					} else if payment > 0 {
 						// CALCULATE Savings/Liquid
-						savings := payment * (config.Properties.Savings_Percentage / 100.00)
-						liquid := payment * (config.Properties.Liquid_Precentage / 100.00)
+						savings := payment * (config.Properties.SavingsPercentage / 100.00)
+						liquid := payment * (config.Properties.LiquidPercentage / 100.00)
 
 						// ADD PAYMENT INFO
 						d.Payment = append(d.Payment, payment)
@@ -334,9 +334,10 @@ func main() {
 				switch result {
 				case settingChoices[0]: // VIEW SETTINGS
 					Utils.Out.Info.Println("==== Configuration Settings ====")
-					fmt.Printf("Data Length: %d\n", config.Properties.Data_Length)
-					fmt.Printf("Savings: %.2f%%\n", config.Properties.Savings_Percentage)
-					fmt.Printf("Liquid: %.2f%%\n\n", config.Properties.Liquid_Precentage)
+					fmt.Printf("Data Length: %d\n", config.Properties.DataLength)
+					fmt.Printf("Savings: %.2f%%\n", config.Properties.SavingsPercentage)
+					fmt.Printf("Liquid: %.2f%%\n", config.Properties.LiquidPercentage)
+					fmt.Printf("Invest: %.2f%%\n\n", config.Properties.InvestPercentage)
 
 				case settingChoices[1]: // CHANGE SAVINGS %
 					// OBTAIN NEW SAVINGS PERCENTAGE
@@ -350,10 +351,10 @@ func main() {
 						Utils.Out.Error.Printf("Settings Savings Error: %v\n", err)
 					} else {
 						Utils.Out.Info.Printf("Savings Set to '%.2f%%'\n\n", savingsP)
-						config.Properties.Savings_Percentage = savingsP
+						config.Properties.SavingsPercentage = savingsP
 
 						// UPDATE LIQUID TO MATCH 100%
-						config.Properties.Liquid_Precentage = 100.00 - savingsP
+						config.Properties.LiquidPercentage = 100.00 - savingsP
 					}
 
 				case settingChoices[2]: // CHANGE LIQUID %
@@ -368,10 +369,10 @@ func main() {
 						Utils.Out.Error.Printf("Settings Liquid Error: %v\n", err)
 					} else {
 						Utils.Out.Info.Printf("Liquid Set to '%.2f%%'\n\n", liquidP)
-						config.Properties.Liquid_Precentage = liquidP
+						config.Properties.LiquidPercentage = liquidP
 
 						// UPDATE LIQUID TO MATCH 100%
-						config.Properties.Savings_Percentage = 100.00 - liquidP
+						config.Properties.SavingsPercentage = 100.00 - liquidP
 					}
 
 				case settingChoices[3]: // GO BACK
