@@ -84,7 +84,7 @@ func main() {
 	mainChoices := []string{"1.Add Data", "2.View Data", "3.Summary", "4.Save Data", "5.Settings", "0.Exit"}
 	viewChoices := []string{"1.Latest Month", "2.Specific Month", "3.View Last 3 Months", "0.Go Back"}
 	addDataChoices := []string{"1.Add Payment", "2.Add Transaction", "0.Go Back"}
-	settingChoices := []string{"1.View", "2.Change Savings %", "3.Change Liquid %", "0.Go Back"}
+	settingChoices := []string{"1.View", "2.Change Savings %", "3.Change Liquid %", "4.Change Invest %", "0.Go Back"}
 
 	// MAIN MENU
 	for {
@@ -158,15 +158,18 @@ func main() {
 						// CALCULATE Savings/Liquid
 						savings := payment * (config.Properties.SavingsPercentage / 100.00)
 						liquid := payment * (config.Properties.LiquidPercentage / 100.00)
+						invest := payment * (config.Properties.InvestPercentage / 100.00)
 
 						// ADD PAYMENT INFO
 						d.Payment = append(d.Payment, payment)
 						d.Savings = append(d.Savings, savings)
 						d.Liquid = append(d.Liquid, liquid)
+						d.Investments = append(d.Investments, invest)
 
 						// OUTPUT INFO
 						Utils.Out.Info.Printf("Payment '$%.2f' Added!\n", payment)
 						Utils.Out.Info.Printf("Savings/Liquid '($%.2f / $%.2f)' Calculated!\n", savings, liquid)
+						Utils.Out.Info.Printf("Investment '$%.2f' Calculated!\n", invest)
 
 					} else {
 						Utils.Out.Warning.Printf("Payment '$%.2f' is Redundant, not added!\n", payment)
@@ -351,10 +354,25 @@ func main() {
 						Utils.Out.Error.Printf("Settings Savings Error: %v\n", err)
 					} else {
 						Utils.Out.Info.Printf("Savings Set to '%.2f%%'\n\n", savingsP)
-						config.Properties.SavingsPercentage = savingsP
 
-						// UPDATE LIQUID TO MATCH 100%
-						config.Properties.LiquidPercentage = 100.00 - savingsP
+						// CALCULATE LIQUID & SAVINGS TO MATCH 100%
+						diff := config.Properties.SavingsPercentage - savingsP
+						invP := (config.Properties.InvestPercentage) + (diff / 2.0)
+						liqP := (config.Properties.LiquidPercentage) + (diff / 2.0)
+
+						// MATCH 100%
+						if invP < 0.0 {
+							liqP += invP
+							invP = 0.0
+						} else if liqP < 0.0 {
+							invP += liqP
+							liqP = 0.0
+						}
+
+						// UPDATE STORED DATA
+						config.Properties.InvestPercentage = invP
+						config.Properties.LiquidPercentage = liqP
+						config.Properties.SavingsPercentage = savingsP
 					}
 
 				case settingChoices[2]: // CHANGE LIQUID %
@@ -369,13 +387,61 @@ func main() {
 						Utils.Out.Error.Printf("Settings Liquid Error: %v\n", err)
 					} else {
 						Utils.Out.Info.Printf("Liquid Set to '%.2f%%'\n\n", liquidP)
-						config.Properties.LiquidPercentage = liquidP
 
-						// UPDATE LIQUID TO MATCH 100%
-						config.Properties.SavingsPercentage = 100.00 - liquidP
+						// CALCULATE LIQUID & SAVINGS TO MATCH 100%
+						diff := config.Properties.LiquidPercentage - liquidP
+						invP := (config.Properties.InvestPercentage) + (diff / 2.0)
+						savP := (config.Properties.SavingsPercentage) + (diff / 2.0)
+
+						// MATCH 100%
+						if invP < 0.0 {
+							savP += invP
+							invP = 0.0
+						} else if savP < 0.0 {
+							invP += savP
+							savP = 0.0
+						}
+
+						// UPDATE STORED DATA
+						config.Properties.InvestPercentage = invP
+						config.Properties.LiquidPercentage = liquidP
+						config.Properties.SavingsPercentage = savP
 					}
 
-				case settingChoices[3]: // GO BACK
+				case settingChoices[3]: // CHANGE INVEST %
+					// OBTAIN NEW INVEST PERCENTAGE
+					var investP float32
+
+					Utils.Out.Prompt.Print("New Invest %")
+					text, _ := reader.ReadString('\n')
+					_, err := fmt.Sscanf(text, "%f", &investP)
+
+					if err != nil {
+						Utils.Out.Error.Printf("Settings Invest Error: %v\n", err)
+					} else {
+						Utils.Out.Info.Printf("Invest Set to '%.2f%%'\n\n", investP)
+
+						// CALCULATE LIQUID & SAVINGS TO MATCH 100%
+						diff := config.Properties.InvestPercentage - investP
+						liqP := (config.Properties.LiquidPercentage) + (diff / 2.0)
+						savP := (config.Properties.SavingsPercentage) + (diff / 2.0)
+
+						// MATCH 100%
+						if liqP < 0.0 {
+							savP += liqP
+							liqP = 0.0
+						} else if savP < 0.0 {
+							liqP += savP
+							savP = 0.0
+						}
+
+						// UPDATE STORED DATA
+						config.Properties.InvestPercentage = investP
+						config.Properties.LiquidPercentage = liqP
+						config.Properties.SavingsPercentage = savP
+					}
+
+				case settingChoices[4]: // GO BACK
 					fmt.Println("Returning to Main Menu...")
 					exitMenu = true
 				default:

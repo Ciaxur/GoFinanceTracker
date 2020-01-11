@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 
 	"../Utils"
 )
@@ -18,6 +19,7 @@ type DataBlock struct {
 	Date         []string  `json:"date"`
 	Payment      []float32 `json:"pay"`
 	Savings      []float32 `json:"savings"`
+	Investments  []float32 `json:"investments"`
 	Liquid       []float32 `json:"liquid"`
 	Transactions []float32 `json:"transactions"`
 }
@@ -41,9 +43,16 @@ func printFloatArr(arr []float32, formatStr string, end string) {
  *  Prints DataBlock
  */
 func (d *DataBlock) Print() {
+	// OBTAIN DATE (MM/YYYY)
+	var blockDate string
+	if len(d.Date) > 0 {
+		re := regexp.MustCompile(`\/\d+\/`)
+		blockDate = string(re.ReplaceAll([]byte(d.Date[0]), []byte("/")))
+	}
+
 	// Output Header
 	Utils.Out.Info.Print("====== ")
-	Utils.Out.Error.Print(d.Date)
+	Utils.Out.Error.Printf("[ %s ]", blockDate)
 	Utils.Out.Info.Println(" ======")
 
 	// Output Data
@@ -55,6 +64,8 @@ func (d *DataBlock) Print() {
 	printFloatArr(d.Savings, "$%.2f ", "\n")
 	Utils.Out.Info.Print("- Transactions: \t")
 	printFloatArr(d.Transactions, "$%.2f ", "\n")
+	Utils.Out.Info.Print("- Investments: \t\t")
+	printFloatArr(d.Investments, "$%.2f ", "\n")
 
 	fmt.Println()
 }
@@ -67,9 +78,9 @@ func (d *DataBlock) Print() {
  */
 func (d *DataBlock) PrintSummary() {
 	// CALCULATE RESULTS
-	var totalPay, totalSavings, totalLiquids, totalTransactions float32 // Summations
-	var liquidUsed, savingsUsed float32                                 // Usage
-	var liquidFlag, savingsFlag bool                                    // Over-Usage Flags
+	var totalPay, totalSavings, totalLiquids, totalTransactions, totalInvest float32 // Summations
+	var liquidLeft, savingsLeft float32                                              // Usage
+	var liquidFlag, savingsFlag bool                                                 // Over-Usage Flags
 
 	// Sum all Data
 	for _, v := range d.Payment {
@@ -84,22 +95,32 @@ func (d *DataBlock) PrintSummary() {
 	for _, v := range d.Transactions {
 		totalTransactions += v
 	}
+	for _, v := range d.Investments {
+		totalInvest += v
+	}
 
 	// Usage
-	liquidUsed = totalLiquids - totalTransactions
-	if liquidUsed < 0 { // Used Savings!
+	liquidLeft = totalLiquids - totalTransactions
+	if liquidLeft < 0 { // Used Savings!
 		liquidFlag = true                       // Used up all Liquid
-		savingsUsed = totalSavings + liquidUsed // Carry to Savings
-		liquidUsed = 0                          // Used up ALL Liquid
+		savingsLeft = totalSavings + liquidLeft // Carry to Savings
+		liquidLeft = 0                          // Used up ALL Liquid
 
-		if savingsUsed < 0 { // Over-Usage! Used up Savings!
+		if savingsLeft < 0 { // Over-Usage! Used up Savings!
 			savingsFlag = true
 		}
 	}
 
+	// OBTAIN DATE (MM/YYYY)
+	var blockDate string
+	if len(d.Date) > 0 {
+		re := regexp.MustCompile(`\/\d+\/`)
+		blockDate = string(re.ReplaceAll([]byte(d.Date[0]), []byte("/")))
+	}
+
 	// Output Header
 	Utils.Out.Info.Print("====== ")
-	Utils.Out.Error.Print(d.Date)
+	Utils.Out.Error.Printf("[ %s ]", blockDate)
 	Utils.Out.Info.Println(" ======")
 
 	// Output Sum Results
@@ -110,24 +131,34 @@ func (d *DataBlock) PrintSummary() {
 	Utils.Out.Info.Print("Total Savings: \t\t$")
 	Utils.Out.Important.Println(totalSavings)
 	Utils.Out.Info.Print("Total Transactions: \t$")
-	Utils.Out.Important.Println(totalTransactions, "\n")
+	Utils.Out.Important.Println(totalTransactions)
+	Utils.Out.Info.Print("Total Investments: \t$")
+	Utils.Out.Important.Println(totalInvest, "\n")
 
 	// Output Usage Results
 	Utils.Out.Info.Print("Usage Liquid: \t\t$")
 	if liquidFlag { // Over-Used Liquid
-		Utils.Out.Important.Print(liquidUsed)
+		Utils.Out.Important.Printf("%.2f", totalLiquids-liquidLeft)
 		Utils.Out.Error.Println(" [OVER-USED]")
 	} else {
-		Utils.Out.Important.Println(liquidUsed)
+		Utils.Out.Important.Printf("%.2f\n", totalLiquids-liquidLeft)
 	}
 
-	Utils.Out.Info.Print("Usage Savings: \t\t$")
+	Utils.Out.Info.Print("Liquid Left: \t\t$")
+	Utils.Out.Important.Printf("%.2f\n", liquidLeft)
+
+	Utils.Out.Info.Print("\nUsage Savings: \t\t$")
 	if savingsFlag { // Over-Used Savings
-		Utils.Out.Important.Print(savingsUsed)
+		Utils.Out.Important.Printf("%.2f", totalSavings-savingsLeft)
 		Utils.Out.Error.Println(" [OVER-USED]")
+	} else if liquidLeft == 0 {
+		Utils.Out.Important.Printf("%.2f\n", totalSavings-savingsLeft)
 	} else {
-		Utils.Out.Important.Println(savingsUsed, "\n")
+		Utils.Out.Important.Printf("%.2f\n", 0.0)
 	}
+
+	Utils.Out.Info.Print("Liquid Left: \t\t$")
+	Utils.Out.Important.Printf("%.2f\n", savingsLeft)
 }
 
 /**
