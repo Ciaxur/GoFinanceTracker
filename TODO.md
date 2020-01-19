@@ -10,4 +10,5 @@
 - Make sure to sort each slice read from JSON
 
 #### [ DEVELOPMENT ]
-- Implement Continuous Integration (TravisCI)
+- Implement Continuous Integration (GitHub Actions)
+    - Add some Color! Just for Output
