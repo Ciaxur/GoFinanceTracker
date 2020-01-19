@@ -1,0 +1,8 @@
+{
+	"config": {
+		"data_length": 1,
+		"savings_percentage": 40,
+		"liquid_percentage": 40,
+		"invest_percentage": 20
+	}
+}

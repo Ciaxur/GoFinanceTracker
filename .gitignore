@@ -1,4 +1,8 @@
+# Ignored Files/Directories
 *.json
 .vscode
 bin
 data
+
+# Whitelisted
+!test/**
