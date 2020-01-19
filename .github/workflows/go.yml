@@ -1,4 +1,4 @@
-name: Go Build
+name: Go Build/Test
 on: 
   push:
     branches: 
@@ -7,7 +7,7 @@ on:
 jobs:
 
   build:
-    name: Build
+    name: Build/Test
     runs-on: ubuntu-latest
     steps:
 
@@ -30,3 +30,6 @@ jobs:
 
     - name: Build
       run: make build
+    
+    - name: Run Tests
+      run: make run-test
