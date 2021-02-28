@@ -7,13 +7,15 @@ import (
 	"os"
 	"regexp"
 
-	"../Utils"
+	"Utils"
 )
 
+// Data - JSON Parent Struct
 type Data struct {
 	Block []*DataBlock `json:"data"`
 }
 
+// DataBlock - JSON Block
 type DataBlock struct {
 	Month        int       `json:"month"`
 	Date         []string  `json:"date"`
@@ -38,10 +40,8 @@ func printFloatArr(arr []float32, formatStr string, end string) {
 	fmt.Print("]" + end)
 }
 
-/**
- * DataBlock Method
- *  Prints DataBlock
- */
+// Print \
+//  Prints DataBlock
 func (d *DataBlock) Print() {
 	// OBTAIN DATE (MM/YYYY)
 	var blockDate string
@@ -70,12 +70,11 @@ func (d *DataBlock) Print() {
 	fmt.Println()
 }
 
-/**
- * DataBlock Method
- *  Prints Out Block Summary
- *  	- Data Summation
- *		- Data Usage
- */
+// PrintSummary \
+// DataBlock Method
+//  Prints Out Block Summary
+//  	- Data Summation
+//		- Data Usage
 func (d *DataBlock) PrintSummary() {
 	// CALCULATE RESULTS
 	var totalPay, totalSavings, totalLiquids, totalTransactions, totalInvest float32 // Summations
@@ -161,11 +160,10 @@ func (d *DataBlock) PrintSummary() {
 	Utils.Out.Important.Printf("%.2f\n", savingsLeft)
 }
 
-/**
- * Loads Data from JSON File
- * @param fileName - The Name of the file that's being read
- * @return Data Object of data stored
- */
+// LoadData \
+//  Loads Data from JSON File
+//  @param fileName - The Name of the file that's being read
+//  @return Data Object of data stored
 func LoadData(fileName string) *Data {
 	var data Data
 	data.Block = make([]*DataBlock, 0, 12)
@@ -186,13 +184,12 @@ func LoadData(fileName string) *Data {
 	return &data
 }
 
-/**
- * Saves Data and COnfig into JSON Files
- * @param data - Pointer to data Object
- * @param config - Pointer to config Object
- * @param configFileName - The Name of the config file that's being saved
- * @param dataFileName - The Name of the data file that's being saved
- */
+// SaveData \
+//  Saves Data and COnfig into JSON Files
+//  @param data - Pointer to data Object
+//  @param config - Pointer to config Object
+//  @param configFileName - The Name of the config file that's being saved
+//  @param dataFileName - The Name of the data file that's being saved
 func SaveData(data *Data, config *Config, dataFileName string, configFileName string) (error, error) {
 	// Update some Config Data
 	config.Properties.DataLength = len(data.Block)
@@ -209,21 +206,19 @@ func SaveData(data *Data, config *Config, dataFileName string, configFileName st
 	return err, err2
 }
 
-/**
- * Adds Data to Objects
- * @param data - Pointer to data Object
- * @param block - Block to Add
- */
+// AddData \
+//  Adds Data to Objects
+//  @param data - Pointer to data Object
+//  @param block - Block to Add
 func AddData(data *Data, block *DataBlock) {
 	// Add new Block
 	data.Block = append(data.Block, block)
 }
 
-/**
- * Displays Loaded Data
- * @param data - Pointer to data Object
- * @param numData - The Last 'n' Elements
- */
+// ViewData \
+//  Displays Loaded Data
+//  @param data - Pointer to data Object
+//  @param numData - The Last 'n' Elements
 func ViewData(data *Data, numData int, fn func(b *DataBlock)) {
 	// Validate Number of Elements
 	if numData > len(data.Block) {
@@ -245,12 +240,11 @@ func ViewData(data *Data, numData int, fn func(b *DataBlock)) {
 	}
 }
 
-/**
- * Searches for given Month in Data and
- *  returns pointer to data
- * @param data - Pointer to the Data
- * @param month - The month to look for
- */
+// FindDataMonth \
+//  Searches for given Month in Data and
+//   returns pointer to data
+//  @param data - Pointer to the Data
+//  @param month - The month to look for
 func FindDataMonth(data *Data, month int) *DataBlock {
 	// Search backward (from latest month)
 	// TODO: Binary Search through Data

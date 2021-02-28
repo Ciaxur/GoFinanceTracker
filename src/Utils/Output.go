@@ -11,10 +11,9 @@ type Output struct {
 	Important *color.Color
 }
 
-/**
- * Creates an Output Object with Pre-Set
- *  color scheme for use
- */
+// InitOutput \
+//  Creates an Output Object with Pre-Set
+// color scheme for use
 func InitOutput() *Output {
 	return &Output{
 		Error:     color.New(color.FgRed).Add(color.Bold),
@@ -25,5 +24,5 @@ func InitOutput() *Output {
 	}
 }
 
-// GLOBAL VARIABLE FOR PRINTS
+// Out GLOBAL VARIABLE FOR PRINTS
 var Out *Output = InitOutput()

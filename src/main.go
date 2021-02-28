@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	. "./DataStructure"
-	"./Utils"
+	DataStruct "DataStructure"
+	"Utils"
 
 	"github.com/manifoldco/promptui"
 )
@@ -76,8 +76,8 @@ func displayDataFiles(dirpath string) string {
 
 func main() {
 	// Load File Data and Variables
-	data := LoadData(dataPath + "/" + displayDataFiles(dataPath))
-	config := LoadConfig("config.json")
+	data := DataStruct.LoadData(dataPath + "/" + displayDataFiles(dataPath))
+	config := DataStruct.LoadConfig("config.json")
 	reader := bufio.NewReader(os.Stdin)
 
 	// Create Choices
@@ -110,7 +110,7 @@ func main() {
 			strDate := fmt.Sprintf("%d/%d/%d", month, day, year)
 
 			// CHECK IF DATA PREV FOUND
-			d := FindDataMonth(data, int(month))
+			d := DataStruct.FindDataMonth(data, int(month))
 			if d != nil { // BLOCK FOUND
 				Utils.Out.Info.Println("\nMonth Found!")
 
@@ -119,8 +119,8 @@ func main() {
 				Utils.Out.Info.Printf("Creating new Block for '%s'\n", strDate)
 
 				// Create new Data Block
-				d = &DataBlock{}
-				AddData(data, d)
+				d = &DataStruct.DataBlock{}
+				DataStruct.AddData(data, d)
 
 				// Allocate Data
 				d.Date = make([]string, 0, 2)
@@ -234,7 +234,7 @@ func main() {
 						block := data.Block[len(data.Block)-1]
 						block.PrintSummary()
 					} else {
-						ViewData(data, 1, nil)
+						DataStruct.ViewData(data, 1, nil)
 					}
 
 				}
@@ -250,7 +250,7 @@ func main() {
 					Utils.Out.Error.Printf("Specific Month Error: %v\n", err.Error())
 				} else {
 					// Find Month & Display
-					d := FindDataMonth(data, month)
+					d := DataStruct.FindDataMonth(data, month)
 					if d != nil {
 						if summaryMode {
 							d.PrintSummary()
@@ -264,12 +264,12 @@ func main() {
 
 			case viewChoices[2]: // VIEW LAST 3 MONTHS
 				if summaryMode {
-					ViewData(data, 3, func(b *DataBlock) {
+					DataStruct.ViewData(data, 3, func(b *DataStruct.DataBlock) {
 						b.PrintSummary()
 						fmt.Println()
 					})
 				} else {
-					ViewData(data, 3, nil)
+					DataStruct.ViewData(data, 3, nil)
 				}
 
 			case viewChoices[3]: // RETURN TO PREVIOUS MENU
@@ -287,8 +287,8 @@ func main() {
 			fileName := fmt.Sprintf("%d.json", year)
 
 			// Strip out Previous Year to save into single Year File
-			var currentData Data
-			currentData.Block = make([]*DataBlock, 0, 12)
+			var currentData DataStruct.Data
+			currentData.Block = make([]*DataStruct.DataBlock, 0, 12)
 
 			// Add Current Year Data into Block to Save
 			for _, block := range data.Block {
@@ -311,7 +311,7 @@ func main() {
 			}
 
 			// SAVE THE FILE
-			err1, err2 := SaveData(&currentData, config, dataPath+"/"+fileName, "config.json")
+			err1, err2 := DataStruct.SaveData(&currentData, config, dataPath+"/"+fileName, "config.json")
 			if err1 != nil {
 				Utils.Out.Error.Printf("Data Save Failed! %v\n", err1)
 			} else if err2 != nil {

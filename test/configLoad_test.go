@@ -1,10 +1,10 @@
-package test
+package DataStructure
 
 import (
 	"fmt"
 	"testing"
 
-	. "../src/DataStructure"
+	. "DataStructure"
 )
 
 // Returns Individual Configuaration Properties Data

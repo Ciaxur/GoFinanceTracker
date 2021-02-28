@@ -7,10 +7,12 @@ import (
 	"os"
 )
 
-// Configuration file Structure from JSON
+// Config - Configuration file Structure from JSON
 type Config struct {
 	Properties *ConfigProperties `json:"config"`
 }
+
+// ConfigProperties - JSON Config Struct
 type ConfigProperties struct {
 	DataLength        int     `json:"data_length"`
 	SavingsPercentage float32 `json:"savings_percentage"`
@@ -23,11 +25,10 @@ const savingsP float32 = 40.00
 const investP float32 = 20.00
 const liquidP float32 = 100.00 - (savingsP + investP)
 
-/**
- * Loads Configuration Section from JSON File
- * @param fileName - The Name of the file that's being read
- * @return Config Object of data stored
- */
+// LoadConfig \
+//  Loads Configuration Section from JSON File
+//  @param fileName - The Name of the file that's being read
+//  @return Config Object of data stored
 func LoadConfig(fileName string) *Config {
 	var config Config
 
